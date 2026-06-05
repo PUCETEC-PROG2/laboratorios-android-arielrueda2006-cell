@@ -3,7 +3,6 @@ package ec.edu.puce.githubclient.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ec.edu.puce.githubclient.models.Repository
-import ec.edu.puce.githubclient.services.RepoRequest
 import ec.edu.puce.githubclient.services.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class RepoListViewModel : ViewModel() {
+
     private val _repos = MutableStateFlow<List<Repository>>(emptyList())
     val repos: StateFlow<List<Repository>> = _repos.asStateFlow()
 
@@ -19,9 +19,6 @@ class RepoListViewModel : ViewModel() {
 
     private val _errorMsg = MutableStateFlow<String?>(null)
     val errorMsg: StateFlow<String?> = _errorMsg.asStateFlow()
-
-    private val _toastMessage = MutableStateFlow<String?>(null)
-    val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
 
     init {
         fetchRepos()
@@ -41,29 +38,25 @@ class RepoListViewModel : ViewModel() {
         }
     }
 
-    fun createRepo(name: String, description: String, onSuccess: () -> Unit) {
-        if (name.isBlank()) {
-            _toastMessage.value = "El nombre del repositorio es obligatorio"
-            return
-        }
-
+    fun deleteRepo(owner: String, repoName: String) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val request = RepoRequest(name, description)
-                RetrofitClient.apiService.createRepository(request)
-                _toastMessage.value = "Repositorio '$name' creado "
-                fetchRepos()
-                onSuccess()
+                val response = RetrofitClient.apiService.deleteRepository(owner, repoName)
+                if (response.isSuccessful) {
+                    _repos.value = _repos.value.filterNot { it.name == repoName && it.owner.login == owner }
+                } else {
+                    _errorMsg.value = "Error al eliminar: ${response.code()} ${response.message()}"
+                }
             } catch (e: Exception) {
-                _toastMessage.value = "Error al crear: ${e.message}"
+                _errorMsg.value = "Error al eliminar: ${e.localizedMessage}"
             } finally {
                 _isLoading.value = false
             }
         }
     }
 
-    fun clearToastMessage() {
-        _toastMessage.value = null
+    fun clearError() {
+        _errorMsg.value = null
     }
 }

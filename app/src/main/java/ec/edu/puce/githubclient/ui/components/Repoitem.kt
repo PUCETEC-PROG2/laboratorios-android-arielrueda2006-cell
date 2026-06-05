@@ -1,17 +1,12 @@
 package ec.edu.puce.githubclient.ui.components
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -22,18 +17,21 @@ import ec.edu.puce.githubclient.models.GithubUser
 import ec.edu.puce.githubclient.models.Repository
 
 @Composable
-fun RepoItem (
-    repository: Repository
+fun RepoItem(
+    repository: Repository,
+    onEditClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding( all = 8.dp)
+            .padding(all = 8.dp)
     ) {
-        Row (
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding( all = 16.dp)
+                .padding(all = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
                 model = repository.owner.avatarUrl,
@@ -42,16 +40,18 @@ fun RepoItem (
                 contentScale = ContentScale.Crop
             )
 
-            Spacer(modifier = Modifier.width( width = 16.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
-            Column {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
                     text = repository.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
 
-                Spacer(modifier = Modifier.height( height = 4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 if (!repository.description.isNullOrBlank()) {
                     Text(
@@ -60,7 +60,7 @@ fun RepoItem (
                     )
                 }
 
-                Spacer(modifier = Modifier.height( height = 4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 if (!repository.language.isNullOrBlank()) {
                     Text(
@@ -69,23 +69,36 @@ fun RepoItem (
                     )
                 }
             }
+
+            Row {
+                IconButton(onClick = onEditClick) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary)
+                }
+                IconButton(onClick = onDeleteClick) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                }
+            }
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun RepoItemPreview () {
-    val repository= Repository(
-        id = "12345",
-        name = "Repositorio de Android",
-        description = "Repositorio de Android paralelo 1471",
+fun RepoItemPreview() {
+    val dummyRepo = Repository(
+        id = "1",
+        name = "Super Repo",
+        description = "prueba para ver como queda en la pantalla",
         language = "Kotlin",
-        owner = GithubUser (
-            id = "123",
-            login = "agrueda",
-            avatarUrl = ""
+        owner = GithubUser(
+            id = "100",
+            login = "UsuarioPrueba",
+            avatarUrl = "https://avatars.githubusercontent.com/u/1?v=4"
         )
     )
-    RepoItem(repository)
+    RepoItem(
+        repository = dummyRepo,
+        onEditClick = {},
+        onDeleteClick = {}
+    )
 }

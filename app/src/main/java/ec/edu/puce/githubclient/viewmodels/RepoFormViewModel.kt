@@ -1,0 +1,50 @@
+package ec.edu.puce.githubclient.viewmodels
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import ec.edu.puce.githubclient.models.RepositoryPayload
+import ec.edu.puce.githubclient.services.RetrofitClient
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+class RepoFormViewModel: ViewModel() {
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _errorMsg = MutableStateFlow<String?>(null)
+    val errorMsg: StateFlow<String?> = _errorMsg.asStateFlow()
+
+    private val _inSuccess = MutableStateFlow(false)
+    val inSuccess: StateFlow<Boolean> = _inSuccess.asStateFlow()
+
+    fun saveRepo(name: String, description: String, originalRepoName: String? = null, ownerLogin: String? = null) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMsg.value = null
+            try {
+                val repoBody = RepositoryPayload(name, description)
+                if (originalRepoName != null && ownerLogin != null) {
+                    RetrofitClient.apiService.updateRepository(ownerLogin, originalRepoName, repoBody)
+                } else {
+                    RetrofitClient.apiService.createRepository(repoBody)
+                }
+                _inSuccess.value = true
+            } catch (e: Exception) {
+                _errorMsg.value = "Error al guardar: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun resetSuccess() {
+        _isLoading.value = false
+        _inSuccess.value = false
+    }
+
+    fun resetError() {
+        _errorMsg.value = null
+    }
+}

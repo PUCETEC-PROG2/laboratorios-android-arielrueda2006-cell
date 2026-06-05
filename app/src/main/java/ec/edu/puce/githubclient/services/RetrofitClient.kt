@@ -7,6 +7,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
+
     private const val BASE_URL = "https://api.github.com/"
 
     private val logging = HttpLoggingInterceptor().apply {
@@ -16,6 +17,7 @@ object RetrofitClient {
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(logging)
         .addInterceptor { chain ->
+
             val token = BuildConfig.GITHUB_TOKEN
             println("TOKEN: $token")
 
