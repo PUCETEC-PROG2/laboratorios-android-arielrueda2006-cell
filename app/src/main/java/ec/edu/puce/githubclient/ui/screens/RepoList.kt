@@ -19,18 +19,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import ec.edu.puce.githubclient.ui.components.RepoItem
-import ec.edu.puce.githubclient.ui.theme.GithubClientTheme
 import ec.edu.puce.githubclient.viewmodels.RepoListViewModel
 
-@Preview(showBackground = true)
 @Composable
 fun RepoList(
     modifier: Modifier = Modifier,
-    viewModel: RepoListViewModel = viewModel()
+    viewModel: RepoListViewModel,
+    onAddClick: () -> Unit
 ) {
     val repos by viewModel.repos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -40,7 +37,7 @@ fun RepoList(
         modifier = modifier,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {},
+                onClick = onAddClick,
                 shape = CircleShape,
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -81,13 +78,5 @@ fun RepoList(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun RepoListPreview() {
-    GithubClientTheme {
-        RepoList()
     }
 }
